@@ -252,6 +252,7 @@ public class Implement {
 				try {
 					model.upperModel(data, false, true);
 					model.lowerModelLShape(data, false, true);
+					model.lowerModelIterate(data, false, true);
 				} catch (IOException | IloException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

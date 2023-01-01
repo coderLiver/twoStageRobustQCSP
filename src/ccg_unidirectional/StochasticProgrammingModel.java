@@ -2,12 +2,10 @@ package ccg_unidirectional;
 
 import java.io.File;
 import java.io.IOException;
-
 import ilog.concert.IloException;
 import ilog.concert.IloNumExpr;
 import ilog.concert.IloNumVar;
 import ilog.concert.IloNumVarType;
-
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
 
@@ -25,6 +23,8 @@ public class StochasticProgrammingModel {
 	double[] alphaValue;
 	IloNumVar[] beta;
 	double[] betaValue;
+	IloNumVar[] theta;
+	double thetaValue;
 	// 下层问题变量
 	IloNumVar[] CmaxKsiLower;
 	IloNumVar[][][] YKsiHK;
@@ -33,6 +33,11 @@ public class StochasticProgrammingModel {
 	double[][][] QKsiJKValue;
 	IloNumVar[][] RKsiK;
 	double[][] RKsiKValue;
+	// 下层问题对偶变量
+	double[][] paiValue;
+	// L-shape下层问题中的x变量取值
+	double[] xLShapeValue;
+	
 	// 上层问题约束
 	IloRange[] upper4_2;
 	IloRange[][] upper4_3;
@@ -45,8 +50,6 @@ public class StochasticProgrammingModel {
 	// 下层问题参数矩阵
 	double[][] matrixT;
 	double[] vectorH;
-	// 下层问题对偶变量
-	double[][] pai_value;
 	
 	long startTime; // 算法运行开始时间
 	long endTime; // 算法运行结束时间
@@ -69,6 +72,7 @@ public class StochasticProgrammingModel {
 		CmaxKsiUpper = new IloNumVar[num_ksi];
 		alpha = new IloNumVar[input.numQC];
 		beta = new IloNumVar[input.numQC];
+		theta = new IloNumVar[1];
 		// 下层问题对偶变量
 		
 		// 约束
@@ -97,11 +101,13 @@ public class StochasticProgrammingModel {
 			beta[i] = upperPro.numVar(1, input.numBay, IloNumVarType.Float, "beta" + i);
 		}
 		
+		theta[0] = upperPro.numVar(Double.MIN_VALUE, Double.MAX_VALUE, IloNumVarType.Float, "Theta");
 		// 设置目标函数
 		IloNumExpr upperObj = upperPro.numExpr();
 		for (int i = 0; i < num_ksi; i++) {
 			upperObj = upperPro.sum(upperObj, upperPro.prod(CmaxKsiUpper[i], 1));
 		}
+		upperObj = upperPro.sum(upperObj, upperPro.prod(theta[0], 1));
 		upperPro.addMinimize(upperObj);
 		
 		// 上层问题约束
@@ -167,6 +173,7 @@ public class StochasticProgrammingModel {
 			CmaxKsiUpperValue = upperPro.getValues(CmaxKsiUpper);
 			alphaValue = upperPro.getValues(alpha);
 			betaValue = upperPro.getValues(beta);
+			thetaValue = upperPro.getValue(theta[0]);
 			System.out.println("Solution status = " + upperPro.getStatus());
 			System.out.println("Solution value  = " + upperPro.getObjValue());
 			input.writerOverall.write("Iteration " + Iteration + " upperObj:" + upperPro.getObjValue() + "\r\n");
@@ -204,8 +211,8 @@ public class StochasticProgrammingModel {
 	}
 	
 	public void lowerModelLShape(Input input, boolean variableOutput, boolean iterationDetail) throws IloException {
-//		int num_ksi = (int) Math.round(Math.pow(numScenarioByBay, input.numBay)); 
-		int num_ksi = 1; 
+		int num_ksi = (int) Math.round(Math.pow(numScenarioByBay, input.numBay)); 
+//		int num_ksi = 1; 
 		lowerProList = new IloCplex[num_ksi];
 //		for (int i = 0; i < num_ksi; i++) {
 //			lowerProList[i] = new IloCplex();
@@ -237,10 +244,13 @@ public class StochasticProgrammingModel {
 		if (vectorH == null) {
 			vectorH = new double[num_row];
 		}
+		if (xLShapeValue == null) {
+			xLShapeValue = new double[input.numBay * input.numQC + 2 * input.numQC];
+		}
 		// 记录当前行
 		int current_row = 0;
 		// 对偶变量取值
-		pai_value = new double[num_ksi][num_row];
+		paiValue = new double[num_ksi][num_row];
 		
 		// 按照模型进行建模
 		for (int i = 0; i < num_ksi; i++) {
@@ -377,14 +387,14 @@ public class StochasticProgrammingModel {
 				// 约束4_12
 				for (int j = 0; j < jValue; j++) {
 					for (int j2 = 0; j2 < input.numQC - 1; j2++) {
-						pai_value[i][j * (input.numQC - 1) + j2] = lowerProList[i].getDual(lower4_12[i][j][j2]);
-						System.out.println("pai_" + i + '_' + (j * (input.numQC - 1) + j2) + ":" + pai_value[i][j * (input.numQC - 1) + j2]);
+						paiValue[i][j * (input.numQC - 1) + j2] = lowerProList[i].getDual(lower4_12[i][j][j2]);
+						System.out.println("pai_" + i + '_' + (j * (input.numQC - 1) + j2) + ":" + paiValue[i][j * (input.numQC - 1) + j2]);
 					}
 				}
 				// 约束4_13
 				for (int j = 0; j < input.numQC; j++) {
-					pai_value[i][jValue * (input.numQC - 1) + j] = lowerProList[i].getDual(lower4_13[i][j]);
-					System.out.println("pai_" + i + '_' + (jValue * (input.numQC - 1) + j) + ":" + pai_value[i][jValue * (input.numQC - 1) + j]);
+					paiValue[i][jValue * (input.numQC - 1) + j] = lowerProList[i].getDual(lower4_13[i][j]);
+					System.out.println("pai_" + i + '_' + (jValue * (input.numQC - 1) + j) + ":" + paiValue[i][jValue * (input.numQC - 1) + j]);
 				}
 
 			} else {
@@ -392,7 +402,44 @@ public class StochasticProgrammingModel {
 				System.exit(0);
 			}
 		}
+	}
+	
+	public void lowerModelIterate(Input input, boolean variableOutput, boolean iterationDetail) throws IloException {
+		int num_ksi = (int) Math.round(Math.pow(numScenarioByBay, input.numBay));
+		Iteration += 1;
+		System.out.println("下层问题第" + Iteration + "次迭代");
+		// 这里的上下界指L-shape中的w与theta，并非下层问题的上下界
+		double upperBound;
+		double lowerBound = 0;
+		int num_row = jValue * (input.numQC - 1) + input.numQC;
+		int num_column = input.numBay * input.numQC + 2 * input.numQC;
+		double[] EVector = new double[num_column];
+		double eScalar = 0;
 		
 		
+		for (int i = 0; i < num_ksi; i++) {
+			// 计算E_{s+1}
+			for (int j = 0; j < num_column; j++) {
+				for (int j2 = 0; j2 < num_row; j2++) {
+					EVector[j] += probabilityKsi[i] * paiValue[i][j2] * matrixT[j2][j];
+				}
+			}
+			
+			// 计算e_{s+1}
+			for (int j2 = 0; j2 < num_row; j2++) {
+				eScalar += probabilityKsi[i] * paiValue[i][j2] * vectorH[j2];
+			}
+		}
+		
+		
+		// 计算w^v
+		upperBound = thetaValue;
+		lowerBound += eScalar;
+		for (int i = 0; i < num_column; i++) {
+			lowerBound -= EVector[i] * xLShapeValue[i];
+		}
+		
+		System.out.println("上界为" + upperBound);
+		System.out.println("下界为" + lowerBound);
 	}
 }
