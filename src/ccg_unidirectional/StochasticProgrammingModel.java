@@ -420,19 +420,19 @@ public class StochasticProgrammingModel {
 		double[] EVector = new double[num_column];
 		double eScalar = 0;
 
-//		for (int i = 0; i < num_ksi; i++) {
-//			// 计算E_{s+1}
-//			for (int j = 0; j < num_column; j++) {
-//				for (int j2 = 0; j2 < num_row; j2++) {
-//					EVector[j] += probabilityKsi[i] * paiValue[i][j2] * matrixT[j2][j];
-//				}
-//			}
-//
-//			// 计算e_{s+1}
-//			for (int j2 = 0; j2 < num_row; j2++) {
-//				eScalar += probabilityKsi[i] * paiValue[i][j2] * vectorH[j2];
-//			}
-//		}
+		for (int i = 0; i < num_ksi; i++) {
+			// 计算E_{s+1}
+			for (int j = 0; j < num_column; j++) {
+				for (int j2 = 0; j2 < num_row; j2++) {
+					EVector[j] += probabilityKsi[i] * paiValue[i][j2] * matrixT[j2][j];
+				}
+			}
+
+			// 计算e_{s+1}
+			for (int j2 = 0; j2 < num_row; j2++) {
+				eScalar += probabilityKsi[i] * paiValue[i][j2] * vectorH[j2];
+			}
+		}
 
 		// 计算w^v
 		upperBound = 1;
@@ -471,6 +471,9 @@ public class StochasticProgrammingModel {
 				temp_expr = upperPro.sum(temp_expr, upperPro.prod(beta[i], EVector[temp_index]));
 				temp_index++;
 			}
+			
+			temp_expr = upperPro.sum(temp_expr, upperPro.prod(theta[0], 1));
+			lower4_10[0] = upperPro.addGe(temp_expr, eScalar, "Constraint4_10");
 
 			// 进行求解
 			if (upperPro.solve()) {
