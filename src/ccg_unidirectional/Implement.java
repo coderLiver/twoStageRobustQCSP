@@ -251,8 +251,8 @@ public class Implement {
 				// 基于Stochastic Programming进行建模
 				try {
 					model.upperModel(data, false, true);
-					model.lowerModelLShape(data, false, true);
-					model.lowerModelIterate(data, false, true);
+					model.lowerModelLShape(data, false, false);
+					model.lowerModelIterate(data, false, false);
 				} catch (IOException | IloException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
