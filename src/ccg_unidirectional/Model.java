@@ -1104,7 +1104,7 @@ public class Model {
 							expr = lowerPro.sum(expr, lowerPro.prod(Yhk[j][i], -1));
 						}
 						rhs += (betaValue[i] - alphaValue[i]) * input.traverseTime;
-						expr = lowerPro.sum(expr, lowerPro.prod(CmaxLower[0], 1));
+						expr = lowerPro.s(um(expr, lowerPro.prod(CmaxLower[0], 1));
 						expr = lowerPro.sum(expr, lowerPro.prod(Epsilonk[i], -M));
 						lowerPro.remove(lower2_16[i]);
 						lower2_16[i] = lowerPro.addLe(expr, rhs, "Constraint2_16 " + i);
