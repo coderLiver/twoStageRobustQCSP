@@ -9,6 +9,7 @@ import ilog.concert.IloNumVarType;
 import ilog.concert.IloObjective;
 import ilog.concert.IloRange;
 import ilog.cplex.IloCplex;
+import ccg_unidirectional.Model;
 
 public class StochasticProgrammingModel {
 	IloCplex upperPro;
@@ -27,6 +28,7 @@ public class StochasticProgrammingModel {
 	double thetaValue;
 	// 下层问题变量
 	IloNumVar[] CmaxKsiLower;
+	double[] CmaxKsiLowerValue;
 	IloNumVar[][][] YKsiHK;
 	double[][][] YksiHKValue;
 	IloNumVar[][][] QKsiJK;
@@ -48,15 +50,15 @@ public class StochasticProgrammingModel {
 	IloRange[][][] lower4_12;
 	IloRange[][] lower4_13;
 	// 下层问题参数矩阵
-	double[][] matrixT;
-	double[] vectorH;
+	double[][][] matrixT;
+	double[][] vectorH;
 
 	long startTime; // 算法运行开始时间
 	long endTime; // 算法运行结束时间
 	private static final double M = 3000;
 	private static final double ACCURANCY = 0.1; // C&CG算法终止的精度
 	private static final double FLOATACCURACY = 0.001;
-	double terminalSpan = 3600; // 程序最大运行时间，以s为单位
+	double terminalSpan = 1800; // 程序最大运行时间，以s为单位
 	int Iteration = 1;
 	int jValue; // 贝位数减去安全距离再减1
 	int numScenarioByBay = 2; // 每一个贝位作业时间的类型数量
@@ -65,12 +67,11 @@ public class StochasticProgrammingModel {
 	public void upperModel(Input input, boolean variableOutput, boolean iterationDetail)
 			throws IloException, IOException {
 		System.out.println("上层模型开始求解");
-		int num_ksi = (int) Math.round(Math.pow(numScenarioByBay, input.numBay));
 		startTime = System.currentTimeMillis();
 		upperPro = new IloCplex();
+		upperPro.setOut(null);
 		// 变量
 		Xhk = new IloNumVar[input.numBay][input.numQC];
-//		CmaxKsiUpper = new IloNumVar[num_ksi];
 		alpha = new IloNumVar[input.numQC];
 		beta = new IloNumVar[input.numQC];
 		theta = new IloNumVar[1];
@@ -90,9 +91,6 @@ public class StochasticProgrammingModel {
 			}
 		}
 
-//		for (int i = 0; i < num_ksi; i++) {
-//			CmaxKsiUpper[i] = upperPro.numVar(0, Double.MAX_VALUE, IloNumVarType.Float, "Cmax" + i);
-//		}
 
 		for (int i = 0; i < input.numQC; i++) {
 			alpha[i] = upperPro.numVar(1, input.numBay, IloNumVarType.Float, "alpha" + i);
@@ -105,9 +103,6 @@ public class StochasticProgrammingModel {
 		theta[0] = upperPro.numVar(Double.MIN_VALUE, Double.MAX_VALUE, IloNumVarType.Float, "Theta");
 		// 设置目标函数
 		IloNumExpr upperObj = upperPro.numExpr();
-//		for (int i = 0; i < num_ksi; i++) {
-//			upperObj = upperPro.sum(upperObj, upperPro.prod(CmaxKsiUpper[i], 1));
-//		}
 		upperObj = upperPro.sum(upperObj, upperPro.prod(theta[0], 1));
 		upperPro.addMinimize(upperObj);
 
@@ -158,12 +153,15 @@ public class StochasticProgrammingModel {
 			expr = upperPro.sum(expr, upperPro.prod(beta[i + 1], -1));
 			upper4_9[i] = upperPro.addLe(expr, -input.safetyMargin - 1, "constraint4_9 " + i);
 		}
-
+		
+		// 根据设置的算法终止时间计算本次迭代的最长时间
+		double leftTime = terminalSpan - (System.currentTimeMillis() - startTime) / 1000;
+		upperPro.setParam(IloCplex.DoubleParam.TiLim, leftTime);
+		
 		// 进行求解
 		if (upperPro.solve()) {
 			System.out.println("问题求解成功");
 			XhkValue = new double[input.numBay][input.numQC];
-//			CmaxKsiUpperValue = new double[num_ksi];
 			alphaValue = new double[input.numQC];
 			betaValue = new double[input.numQC];
 			for (int i = 0; i < input.numBay; i++) {
@@ -177,14 +175,14 @@ public class StochasticProgrammingModel {
 			thetaValue = upperPro.getValue(theta[0]);
 			System.out.println("Solution status = " + upperPro.getStatus());
 			System.out.println("Solution value  = " + upperPro.getObjValue());
-			input.writerOverall.write("Iteration " + Iteration + " upperObj:" + upperPro.getObjValue() + "\r\n");
+//			input.writerOverallStochastic.write("Iteration " + Iteration + " upperObj:" + upperPro.getObjValue() + "\r\n");
 
 			if (iterationDetail) {
-				File file = new File("./result of benchmark/test_" + input.testID);
+				File file = new File("./result of benchmark/stochastic_test_" + input.testID);
 				if (!file.exists()) {// 如果文件夹不存在
 					file.mkdir();// 创建文件夹
 				}
-				upperPro.writeSolution("./result of benchmark/test_" + input.testID + "/test_" + input.testID
+				upperPro.writeSolution("./result of benchmark/stochastic_test_" + input.testID + "/test_" + input.testID
 						+ " iteration_" + Iteration + "upper.txt");
 			}
 
@@ -194,9 +192,6 @@ public class StochasticProgrammingModel {
 						System.out.println("X" + i + "," + j + ": Value = " + XhkValue[i][j]);
 					}
 				}
-//				for (int i = 0; i < num_ksi; i++) {
-//					System.out.println("CmaxKsi" + i + ": Value = " + CmaxKsiUpperValue[i]);
-//				}
 				for (int i = 0; i < input.numQC; i++) {
 					System.out.println("alpha" + i + ": Value = " + alphaValue[i]);
 				}
@@ -212,12 +207,8 @@ public class StochasticProgrammingModel {
 	}
 
 	public void lowerModelLShape(Input input, boolean variableOutput, boolean iterationDetail) throws IloException {
-		int num_ksi = (int) Math.round(Math.pow(numScenarioByBay, input.numBay));
-//		int num_ksi = 1; 
+		int num_ksi = input.num_ksi;
 		lowerProList = new IloCplex[num_ksi];
-//		for (int i = 0; i < num_ksi; i++) {
-//			lowerProList[i] = new IloCplex();
-//		}
 		jValue = input.numBay - input.safetyMargin - 1;
 		probabilityKsi = new double[num_ksi];
 		for (int i = 0; i < num_ksi; i++) {
@@ -225,6 +216,7 @@ public class StochasticProgrammingModel {
 		}
 		// 变量
 		CmaxKsiLower = new IloNumVar[num_ksi];
+		CmaxKsiLowerValue = new double[num_ksi];
 		YKsiHK = new IloNumVar[num_ksi][input.numBay][input.numQC];
 		QKsiJK = new IloNumVar[num_ksi][jValue][input.numQC - 1];
 		RKsiK = new IloNumVar[num_ksi][input.numQC];
@@ -240,20 +232,22 @@ public class StochasticProgrammingModel {
 		int num_row = jValue * (input.numQC - 1) + input.numQC;
 		int num_column = input.numBay * input.numQC + 2 * input.numQC;
 		if (matrixT == null) {
-			matrixT = new double[num_row][num_column];
+			matrixT = new double[num_ksi][num_row][num_column];
 		}
 		if (vectorH == null) {
-			vectorH = new double[num_row];
+			vectorH = new double[num_ksi][num_row];
 		}
-		// 记录当前行
-		int current_row = 0;
+		
 		// 对偶变量取值
 		paiValue = new double[num_ksi][num_row];
 
 		// 按照模型进行建模
 		for (int i = 0; i < num_ksi; i++) {
+			// 记录当前行
+			int current_row = 0;
 			System.out.println("下层模型第" + i + "个scenario求解");
 			lowerProList[i] = new IloCplex();
+			lowerProList[i].setOut(null);
 			// 设置变量
 			CmaxKsiLower[i] = lowerProList[i].numVar(0, Double.MAX_VALUE, IloNumVarType.Float, "CmaxKsi_" + i);
 			for (int j = 0; j < jValue; j++) {
@@ -284,53 +278,43 @@ public class StochasticProgrammingModel {
 					double left_constant = 0, right_constant = 0;
 
 					for (int k = 0; k <= j; k++) {
-						left_constant += input.processTime[k] * XhkValue[k][j2];
-						if (i == 0) {
-							matrixT[current_row][k * input.numQC + j2] += input.processTime[k];
-						}
+						left_constant += input.stochasticProcessTime[i][k] * XhkValue[k][j2];
+						matrixT[i][current_row][k * input.numQC + j2] += input.stochasticProcessTime[i][k];
 						expr = lowerProList[i].sum(expr, YKsiHK[i][k][j2]);
 					}
 					expr = lowerProList[i].sum(expr, lowerProList[i].prod(QKsiJK[i][j][j2], -1));
 					left_constant += (j + 1 - alphaValue[j2]) * input.traverseTime;
-					if (i == 0) {
-						matrixT[current_row][input.numBay * input.numQC + j2] += -input.traverseTime;
-						vectorH[current_row] += -(j + 1) * input.traverseTime;
-					}
+					matrixT[i][current_row][input.numBay * input.numQC + j2] += -input.traverseTime;
+					vectorH[i][current_row] += -(j + 1) * input.traverseTime;
 
 					for (int k = input.safetyMargin + 1; k <= j + input.safetyMargin + 1; k++) {
-						right_constant += input.processTime[k] * XhkValue[k][j2 + 1];
-						if (i == 0) {
-							matrixT[current_row][k * input.numQC + j2 + 1] = -input.processTime[k];
-						}
+						right_constant += input.stochasticProcessTime[i][k] * XhkValue[k][j2 + 1];
+						matrixT[i][current_row][k * input.numQC + j2 + 1] = -input.stochasticProcessTime[i][k];
 						expr = lowerProList[i].sum(expr, lowerProList[i].prod(YKsiHK[i][k][j2 + 1], -1));
 					}
+					
 					right_constant += (j + 1 + input.safetyMargin + 1 - alphaValue[j2 + 1]) * input.traverseTime;
-					if (i == 0) {
-						matrixT[current_row][input.numBay * input.numQC + j2 + 1] += input.traverseTime;
-						vectorH[current_row] += (j + 1 + input.safetyMargin + 1) * input.traverseTime;
-						current_row++;
-					}
+					matrixT[i][current_row][input.numBay * input.numQC + j2 + 1] += input.traverseTime;
+					vectorH[i][current_row] += (j + 1 + input.safetyMargin + 1) * input.traverseTime;
+					current_row++;
 					lower4_12[i][j][j2] = lowerProList[i].addEq(expr, right_constant - left_constant,
 							"Constraint4_12:" + i + "," + j + "," + j2);
 				}
 			}
+			
 			// 4-13
 			for (int j = 0; j < input.numQC; j++) {
 				double left_constant = 0;
 				IloNumExpr expr = lowerProList[i].numExpr();
 				for (int k = 0; k < input.numBay; k++) {
-					left_constant += input.processTime[k] * XhkValue[k][j];
-					if (i == 0) {
-						matrixT[current_row][k * input.numQC + j] += input.processTime[k];
-					}
+					left_constant += input.stochasticProcessTime[i][k] * XhkValue[k][j];
+					matrixT[i][current_row][k * input.numQC + j] += input.stochasticProcessTime[i][k];
 					expr = lowerProList[i].sum(expr, YKsiHK[i][k][j]);
 				}
 				left_constant += (betaValue[j] - alphaValue[j]) * input.traverseTime;
-				if (i == 0) {
-					matrixT[current_row][input.numBay * input.numQC + j] += -input.traverseTime;
-					matrixT[current_row][input.numBay * input.numQC + input.numQC + j] += input.traverseTime;
-					current_row++;
-				}
+				matrixT[i][current_row][input.numBay * input.numQC + j] += -input.traverseTime;
+				matrixT[i][current_row][input.numBay * input.numQC + input.numQC + j] += input.traverseTime;
+				current_row++;
 				expr = lowerProList[i].sum(expr, RKsiK[i][j]);
 				expr = lowerProList[i].sum(expr, lowerProList[i].prod(-1, CmaxKsiLower[i]));
 				lower4_13[i][j] = lowerProList[i].addLe(expr, -left_constant, "Contraint4_13" + i + "," + j);
@@ -365,47 +349,38 @@ public class StochasticProgrammingModel {
 
 				}
 
-//				if (iteration) {
-//					input.writerOverall
-//							.write("Iteration " + Iteration + " lowerObj(SD):" + lowerPro.getObjValue() + "\r\n");
-//					input.writerOverall.write("\r\n");
-//
-//					File file = new File("./result of benchmark/test_" + input.testID);
-//					if (!file.exists()) {// 如果文件夹不存在
-//						file.mkdir();// 创建文件夹
-//					}
-//
-//					if (iterationDetail) {
-//						lowerPro.writeSolution("./result of benchmark/test_" + input.testID + "/test_" + input.testID
-//								+ " iteration_" + Iteration + "lowerSD.txt");
-//					}
-//				}
-
 				// 获取对偶变量取值
 				// 约束4_12
+				int temp_index = 0;
 				for (int j = 0; j < jValue; j++) {
 					for (int j2 = 0; j2 < input.numQC - 1; j2++) {
-						paiValue[i][j * (input.numQC - 1) + j2] = lowerProList[i].getDual(lower4_12[i][j][j2]);
-						System.out.println("pai_" + i + '_' + (j * (input.numQC - 1) + j2) + ":"
-								+ paiValue[i][j * (input.numQC - 1) + j2]);
+						paiValue[i][temp_index] = lowerProList[i].getDual(lower4_12[i][j][j2]);
+						temp_index++;
+//						System.out.println("pai_" + i + '_' + (j * (input.numQC - 1) + j2) + ":"
+//								+ paiValue[i][j * (input.numQC - 1) + j2]);
 					}
 				}
 				// 约束4_13
 				for (int j = 0; j < input.numQC; j++) {
-					paiValue[i][jValue * (input.numQC - 1) + j] = lowerProList[i].getDual(lower4_13[i][j]);
-					System.out.println("pai_" + i + '_' + (jValue * (input.numQC - 1) + j) + ":"
-							+ paiValue[i][jValue * (input.numQC - 1) + j]);
-				}
-
+					paiValue[i][temp_index] = lowerProList[i].getDual(lower4_13[i][j]);
+//					System.out.println("pai_" + i + '_' + (jValue * (input.numQC - 1) + j) + ":"
+//							+ paiValue[i][jValue * (input.numQC - 1) + j]);
+				}		
+				
 			} else {
 				System.out.println("下层问题求解失败");
 				System.exit(0);
 			}
 		}
+		// 获取Cmax变量值
+		for (int i = 0; i < num_ksi; i++) {
+			CmaxKsiLowerValue[i] = lowerProList[i].getValue(CmaxKsiLower[i]);
+		}
+		
 	}
 
 	public void lowerModelIterate(Input input, boolean variableOutput, boolean iterationDetail) throws IloException, IOException {
-		int num_ksi = (int) Math.round(Math.pow(numScenarioByBay, input.numBay));
+		int num_ksi = input.num_ksi;
 		System.out.println("下层问题第" + Iteration + "次迭代");
 		// 这里的上下界指L-shape中的w与theta，并非下层问题的上下界
 		double lowerBound = 0;
@@ -419,23 +394,42 @@ public class StochasticProgrammingModel {
 			// 计算E_{s+1}
 			for (int j = 0; j < num_column; j++) {
 				for (int j2 = 0; j2 < num_row; j2++) {
-					EVector[j] += probabilityKsi[i] * paiValue[i][j2] * matrixT[j2][j];
+					EVector[j] += probabilityKsi[i] * paiValue[i][j2] * matrixT[i][j2][j];
 				}
 			}
 
 			// 计算e_{s+1}
 			for (int j2 = 0; j2 < num_row; j2++) {
-				eScalar += probabilityKsi[i] * paiValue[i][j2] * vectorH[j2];
+				eScalar += probabilityKsi[i] * paiValue[i][j2] * vectorH[i][j2];
 			}
 		}
 
-		// 计算w^v
-		upperBound = 1;
-		lowerBound = 0;
-//		for (int i = 0; i < num_column; i++) {
-//			lowerBound -= EVector[i] * xLShapeValue[i];
-//		}
-
+		upperBound = eScalar;
+		lowerBound = thetaValue;
+		int temp_index1 = 0;
+		for (int i = 0; i < input.numBay; i++) {
+			for (int j = 0; j < input.numQC; j++) {
+				upperBound -= EVector[temp_index1] * XhkValue[i][j];
+				temp_index1++;
+			}
+		}
+		for (int i = 0; i < input.numQC; i++) {
+			upperBound -= EVector[temp_index1] * alphaValue[i];
+			temp_index1++;
+		}
+		for (int i = 0; i < input.numQC; i++) {
+			upperBound -= EVector[temp_index1] * betaValue[i];
+			temp_index1++;
+		}
+		
+		double total_obj = 0;
+		
+		for (int i = 0; i < num_ksi; i++) {
+			total_obj += probabilityKsi[i] * CmaxKsiLowerValue[i];
+		}
+		input.writerOverallStochastic.write("Iteration " + Iteration + "upperBound:" + upperBound + "\r\n");
+		input.writerOverallStochastic.write("Iteration " + Iteration + "lowerBound:" + lowerBound + "\r\n");
+		input.writerOverallStochastic.write("\r\n");
 		System.out.println("上界为" + upperBound);
 		System.out.println("下界为" + lowerBound);
 
@@ -469,7 +463,11 @@ public class StochasticProgrammingModel {
 			
 			temp_expr = upperPro.sum(temp_expr, upperPro.prod(theta[0], 1));
 			lower4_10[0] = upperPro.addGe(temp_expr, eScalar, "Constraint4_10");
-
+			
+			// 根据设置的算法终止时间计算本次迭代的最长时间
+			double leftTime = terminalSpan - (System.currentTimeMillis() - startTime) / 1000;
+			upperPro.setParam(IloCplex.DoubleParam.TiLim, leftTime);
+			
 			// 进行求解
 			if (upperPro.solve()) {
 				System.out.println("上层问题求解成功");
@@ -500,9 +498,7 @@ public class StochasticProgrammingModel {
 							System.out.println("X" + i + "," + j + ": Value = " + XhkValue[i][j]);
 						}
 					}
-//					for (int i = 0; i < num_ksi; i++) {
-//						System.out.println("CmaxKsi" + i + ": Value = " + CmaxKsiUpperValue[i]);
-//					}
+					
 					for (int i = 0; i < input.numQC; i++) {
 						System.out.println("alpha" + i + ": Value = " + alphaValue[i]);
 					}
@@ -518,13 +514,6 @@ public class StochasticProgrammingModel {
 			
 			// 求解子问题
 			for (int i = 0; i < num_ksi; i++) {
-//				System.out.println("下层模型第" + i + "个scenario求解");
-
-//				// 目标函数
-//				IloNumExpr obj = lowerProList[i].numExpr();
-//				obj = lowerProList[i].sum(obj, CmaxKsiLower[i]);
-//				lowerProList[i].addMinimize(obj);
-
 				// 设置约束
 				// 4-12
 				for (int j = 0; j < jValue; j++) {
@@ -533,14 +522,15 @@ public class StochasticProgrammingModel {
 						double left_constant = 0, right_constant = 0;
 
 						for (int k = 0; k <= j; k++) {
-							left_constant += input.processTime[k] * XhkValue[k][j2];
+							left_constant += input.stochasticProcessTime[i][k] * XhkValue[k][j2];
 							expr = lowerProList[i].sum(expr, YKsiHK[i][k][j2]);
 						}
 						expr = lowerProList[i].sum(expr, lowerProList[i].prod(QKsiJK[i][j][j2], -1));
 						left_constant += (j + 1 - alphaValue[j2]) * input.traverseTime;
-
+						
+						
 						for (int k = input.safetyMargin + 1; k <= j + input.safetyMargin + 1; k++) {
-							right_constant += input.processTime[k] * XhkValue[k][j2 + 1];
+							right_constant += input.stochasticProcessTime[i][k] * XhkValue[k][j2 + 1];
 							expr = lowerProList[i].sum(expr, lowerProList[i].prod(YKsiHK[i][k][j2 + 1], -1));
 						}
 						right_constant += (j + 1 + input.safetyMargin + 1 - alphaValue[j2 + 1]) * input.traverseTime;
@@ -554,7 +544,7 @@ public class StochasticProgrammingModel {
 					double left_constant = 0;
 					IloNumExpr expr = lowerProList[i].numExpr();
 					for (int k = 0; k < input.numBay; k++) {
-						left_constant += input.processTime[k] * XhkValue[k][j];
+						left_constant += input.stochasticProcessTime[i][k] * XhkValue[k][j];
 						expr = lowerProList[i].sum(expr, YKsiHK[i][k][j]);
 					}
 					left_constant += (betaValue[j] - alphaValue[j]) * input.traverseTime;
@@ -567,8 +557,6 @@ public class StochasticProgrammingModel {
 				// 求解问题
 				if (lowerProList[i].solve()) {
 					endTime = System.currentTimeMillis();
-//					System.out.println("Solution status = " + lowerProList[i].getStatus());
-//					System.out.println("Solution value  = " + lowerProList[i].getObjValue());
 
 					if (variableOutput) {
 
@@ -624,30 +612,33 @@ public class StochasticProgrammingModel {
 //						System.out.println("pai_" + i + '_' + (jValue * (input.numQC - 1) + j) + ":"
 //								+ paiValue[i][jValue * (input.numQC - 1) + j]);
 					}
-
+					// 获取目标函数值
+					CmaxKsiLowerValue[i] = lowerProList[i].getValue(CmaxKsiLower[i]);
 				} else {
 					System.out.println("下层问题求解失败");
 					System.exit(0);
 				}
 			}
 			
+			eScalar = 0;
+			EVector = new double[num_column];
 			for (int i = 0; i < num_ksi; i++) {
 				// 计算E_{s+1}
 				for (int j = 0; j < num_column; j++) {
 					for (int j2 = 0; j2 < num_row; j2++) {
-						EVector[j] += probabilityKsi[i] * paiValue[i][j2] * matrixT[j2][j];
+						EVector[j] += probabilityKsi[i] * paiValue[i][j2] * matrixT[i][j2][j];
 					}
 				}
 
 				// 计算e_{s+1}
 				for (int j2 = 0; j2 < num_row; j2++) {
-					eScalar += probabilityKsi[i] * paiValue[i][j2] * vectorH[j2];
+					eScalar += probabilityKsi[i] * paiValue[i][j2] * vectorH[i][j2];
 				}
 			}
 			
 			upperBound = eScalar;
 			lowerBound = thetaValue;
-			int temp_index1 = 0;
+			temp_index1 = 0;
 			for (int i = 0; i < input.numBay; i++) {
 				for (int j = 0; j < input.numQC; j++) {
 					upperBound -= EVector[temp_index1] * XhkValue[i][j];
@@ -662,17 +653,53 @@ public class StochasticProgrammingModel {
 				upperBound -= EVector[temp_index1] * betaValue[i];
 				temp_index1++;
 			}
-			input.writerOverall.write("Iteration " + Iteration + "upperBound:" + upperBound + "\r\n");
-			input.writerOverall.write("Iteration " + Iteration + "lowerBound:" + lowerBound + "\r\n");
-			input.writerOverall.write("\r\n");
+			
+			total_obj = 0;
+			for (int i = 0; i < num_ksi; i++) {
+				total_obj += probabilityKsi[i] * CmaxKsiLowerValue[i];
+			}
+			input.writerOverallStochastic.write("Iteration " + Iteration + "upperBound:" + upperBound + "\r\n");
+			input.writerOverallStochastic.write("Iteration " + Iteration + "lowerBound:" + lowerBound + "\r\n");
+			input.writerOverallStochastic.write("Obj value:" + total_obj + "\r\n");
+			input.writerOverallStochastic.write("\r\n");
 			System.out.println("上界为" + upperBound);
 			System.out.println("下界为" + lowerBound);
+			System.out.println("目标函数值为" + total_obj);
 		}
+		
+		// 记录X的取值，也就是泊位和岸桥的分配关系，还有alpha和beta的取值，需要先对内容进行清空
+		input.resetWriterStochasticAssignment();
+		assignmentRecord(input);
 		
 		endTime = System.currentTimeMillis();
 		long totalComputingTime = endTime - startTime;
-		input.writerOverall.write("Total computing time:" + totalComputingTime + "\r\n");
-		input.writerOverall.write("Iteration:" + Iteration);
-		input.writerOverall.close();
+		input.writerOverallStochastic.write("Total computing time:" + totalComputingTime + "\r\n");
+		input.writerOverallStochastic.write("Iteration:" + Iteration);
+		input.writerOverallStochastic.close();
+		input.writerStochasticAssignment.close();
 	}
+	
+	// 用于记录上层问题输出的指派方案，也就是变量X、alpha和beta的取值
+	public void assignmentRecord(Input input) {
+		try {
+			for (int i = 0; i < XhkValue.length; i++) {
+				for (int j = 0; j < XhkValue[0].length; j++) {
+					input.writerStochasticAssignment.write("X" + i + "," + j + ":" + (int) Math.round(XhkValue[i][j]) + "\n");
+				}
+			}
+
+			for (int i = 0; i < alphaValue.length; i++) {
+				input.writerStochasticAssignment.write("alpha_" + i + ":" + (int) Math.round(alphaValue[i]) + "\n");
+			}
+
+			for (int i = 0; i < betaValue.length; i++) {
+				input.writerStochasticAssignment.write("beta_" + i + ":" + (int) Math.round(betaValue[i]) + "\n");
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
 }

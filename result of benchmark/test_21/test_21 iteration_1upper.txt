@@ -1,0 +1,233 @@
+<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>
+<CPLEXSolution version="1.2">
+ <header
+   problemName="ilog.cplex"
+   solutionName="incumbent"
+   solutionIndex="-1"
+   objectiveValue="4.9406564584124654e-324"
+   solutionTypeValue="3"
+   solutionTypeString="primal"
+   solutionStatusValue="101"
+   solutionStatusString="integer optimal solution"
+   solutionMethodString="mip"
+   primalFeasible="1"
+   dualFeasible="1"
+   MIPNodes="0"
+   MIPIterations="0"
+   writeLevel="1"/>
+ <quality
+   epInt="1.0000000000000001e-05"
+   epRHS="9.9999999999999995e-07"
+   maxIntInfeas="0"
+   maxPrimalInfeas="3.5527136788005009e-15"
+   maxX="20"
+   maxSlack="3020"/>
+ <linearConstraints>
+  <constraint name="constraint4_2 0" index="0" slack="0"/>
+  <constraint name="constraint4_2 1" index="1" slack="0"/>
+  <constraint name="constraint4_2 2" index="2" slack="0"/>
+  <constraint name="constraint4_2 4" index="3" slack="0"/>
+  <constraint name="constraint4_2 6" index="4" slack="0"/>
+  <constraint name="constraint4_2 7" index="5" slack="0"/>
+  <constraint name="constraint4_2 8" index="6" slack="0"/>
+  <constraint name="constraint4_2 9" index="7" slack="0"/>
+  <constraint name="constraint4_2 11" index="8" slack="0"/>
+  <constraint name="constraint4_2 13" index="9" slack="0"/>
+  <constraint name="constraint4_2 17" index="10" slack="0"/>
+  <constraint name="constraint4_2 18" index="11" slack="0"/>
+  <constraint name="constraint4_2 19" index="12" slack="0"/>
+  <constraint name="constraint4_3 0,0" index="13" slack="0"/>
+  <constraint name="constraint4_3 0,1" index="14" slack="2997"/>
+  <constraint name="constraint4_3 0,2" index="15" slack="2995"/>
+  <constraint name="constraint4_3 1,0" index="16" slack="1"/>
+  <constraint name="constraint4_3 1,1" index="17" slack="2997"/>
+  <constraint name="constraint4_3 1,2" index="18" slack="2995"/>
+  <constraint name="constraint4_3 2,0" index="19" slack="2999"/>
+  <constraint name="constraint4_3 2,1" index="20" slack="0"/>
+  <constraint name="constraint4_3 2,2" index="21" slack="2995"/>
+  <constraint name="constraint4_3 3,0" index="22" slack="2999"/>
+  <constraint name="constraint4_3 3,1" index="23" slack="2997"/>
+  <constraint name="constraint4_3 3,2" index="24" slack="2995"/>
+  <constraint name="constraint4_3 4,0" index="25" slack="2999"/>
+  <constraint name="constraint4_3 4,1" index="26" slack="2997"/>
+  <constraint name="constraint4_3 4,2" index="27" slack="0"/>
+  <constraint name="constraint4_3 5,0" index="28" slack="2999"/>
+  <constraint name="constraint4_3 5,1" index="29" slack="2997"/>
+  <constraint name="constraint4_3 5,2" index="30" slack="2995"/>
+  <constraint name="constraint4_3 6,0" index="31" slack="2999"/>
+  <constraint name="constraint4_3 6,1" index="32" slack="2997"/>
+  <constraint name="constraint4_3 6,2" index="33" slack="2"/>
+  <constraint name="constraint4_3 7,0" index="34" slack="2999"/>
+  <constraint name="constraint4_3 7,1" index="35" slack="2997"/>
+  <constraint name="constraint4_3 7,2" index="36" slack="3"/>
+  <constraint name="constraint4_3 8,0" index="37" slack="2999"/>
+  <constraint name="constraint4_3 8,1" index="38" slack="2997"/>
+  <constraint name="constraint4_3 8,2" index="39" slack="4"/>
+  <constraint name="constraint4_3 9,0" index="40" slack="2999"/>
+  <constraint name="constraint4_3 9,1" index="41" slack="2997"/>
+  <constraint name="constraint4_3 9,2" index="42" slack="5"/>
+  <constraint name="constraint4_3 10,0" index="43" slack="2999"/>
+  <constraint name="constraint4_3 10,1" index="44" slack="2997"/>
+  <constraint name="constraint4_3 10,2" index="45" slack="2995"/>
+  <constraint name="constraint4_3 11,0" index="46" slack="2999"/>
+  <constraint name="constraint4_3 11,1" index="47" slack="2997"/>
+  <constraint name="constraint4_3 11,2" index="48" slack="7"/>
+  <constraint name="constraint4_3 12,0" index="49" slack="2999"/>
+  <constraint name="constraint4_3 12,1" index="50" slack="2997"/>
+  <constraint name="constraint4_3 12,2" index="51" slack="2995"/>
+  <constraint name="constraint4_3 13,0" index="52" slack="2999"/>
+  <constraint name="constraint4_3 13,1" index="53" slack="2997"/>
+  <constraint name="constraint4_3 13,2" index="54" slack="9"/>
+  <constraint name="constraint4_3 14,0" index="55" slack="2999"/>
+  <constraint name="constraint4_3 14,1" index="56" slack="2997"/>
+  <constraint name="constraint4_3 14,2" index="57" slack="2995"/>
+  <constraint name="constraint4_3 15,0" index="58" slack="2999"/>
+  <constraint name="constraint4_3 15,1" index="59" slack="2997"/>
+  <constraint name="constraint4_3 15,2" index="60" slack="2995"/>
+  <constraint name="constraint4_3 16,0" index="61" slack="2999"/>
+  <constraint name="constraint4_3 16,1" index="62" slack="2997"/>
+  <constraint name="constraint4_3 16,2" index="63" slack="2995"/>
+  <constraint name="constraint4_3 17,0" index="64" slack="2999"/>
+  <constraint name="constraint4_3 17,1" index="65" slack="2997"/>
+  <constraint name="constraint4_3 17,2" index="66" slack="13"/>
+  <constraint name="constraint4_3 18,0" index="67" slack="2999"/>
+  <constraint name="constraint4_3 18,1" index="68" slack="2997"/>
+  <constraint name="constraint4_3 18,2" index="69" slack="14"/>
+  <constraint name="constraint4_3 19,0" index="70" slack="2999"/>
+  <constraint name="constraint4_3 19,1" index="71" slack="2997"/>
+  <constraint name="constraint4_3 19,2" index="72" slack="15"/>
+  <constraint name="constraint4_4 0,0" index="73" slack="-15"/>
+  <constraint name="constraint4_4 0,1" index="74" slack="-3018"/>
+  <constraint name="constraint4_4 0,2" index="75" slack="-3020"/>
+  <constraint name="constraint4_4 1,0" index="76" slack="-14"/>
+  <constraint name="constraint4_4 1,1" index="77" slack="-3018"/>
+  <constraint name="constraint4_4 1,2" index="78" slack="-3020"/>
+  <constraint name="constraint4_4 2,0" index="79" slack="-3016"/>
+  <constraint name="constraint4_4 2,1" index="80" slack="-15"/>
+  <constraint name="constraint4_4 2,2" index="81" slack="-3020"/>
+  <constraint name="constraint4_4 3,0" index="82" slack="-3016"/>
+  <constraint name="constraint4_4 3,1" index="83" slack="-3018"/>
+  <constraint name="constraint4_4 3,2" index="84" slack="-3020"/>
+  <constraint name="constraint4_4 4,0" index="85" slack="-3016"/>
+  <constraint name="constraint4_4 4,1" index="86" slack="-3018"/>
+  <constraint name="constraint4_4 4,2" index="87" slack="-15"/>
+  <constraint name="constraint4_4 5,0" index="88" slack="-3016"/>
+  <constraint name="constraint4_4 5,1" index="89" slack="-3018"/>
+  <constraint name="constraint4_4 5,2" index="90" slack="-3020"/>
+  <constraint name="constraint4_4 6,0" index="91" slack="-3016"/>
+  <constraint name="constraint4_4 6,1" index="92" slack="-3018"/>
+  <constraint name="constraint4_4 6,2" index="93" slack="-13"/>
+  <constraint name="constraint4_4 7,0" index="94" slack="-3016"/>
+  <constraint name="constraint4_4 7,1" index="95" slack="-3018"/>
+  <constraint name="constraint4_4 7,2" index="96" slack="-12"/>
+  <constraint name="constraint4_4 8,0" index="97" slack="-3016"/>
+  <constraint name="constraint4_4 8,1" index="98" slack="-3018"/>
+  <constraint name="constraint4_4 8,2" index="99" slack="-11"/>
+  <constraint name="constraint4_4 9,0" index="100" slack="-3016"/>
+  <constraint name="constraint4_4 9,1" index="101" slack="-3018"/>
+  <constraint name="constraint4_4 9,2" index="102" slack="-10"/>
+  <constraint name="constraint4_4 10,0" index="103" slack="-3016"/>
+  <constraint name="constraint4_4 10,1" index="104" slack="-3018"/>
+  <constraint name="constraint4_4 10,2" index="105" slack="-3020"/>
+  <constraint name="constraint4_4 11,0" index="106" slack="-3016"/>
+  <constraint name="constraint4_4 11,1" index="107" slack="-3018"/>
+  <constraint name="constraint4_4 11,2" index="108" slack="-8"/>
+  <constraint name="constraint4_4 12,0" index="109" slack="-3016"/>
+  <constraint name="constraint4_4 12,1" index="110" slack="-3018"/>
+  <constraint name="constraint4_4 12,2" index="111" slack="-3020"/>
+  <constraint name="constraint4_4 13,0" index="112" slack="-3016"/>
+  <constraint name="constraint4_4 13,1" index="113" slack="-3018"/>
+  <constraint name="constraint4_4 13,2" index="114" slack="-6"/>
+  <constraint name="constraint4_4 14,0" index="115" slack="-3016"/>
+  <constraint name="constraint4_4 14,1" index="116" slack="-3018"/>
+  <constraint name="constraint4_4 14,2" index="117" slack="-3020"/>
+  <constraint name="constraint4_4 15,0" index="118" slack="-3016"/>
+  <constraint name="constraint4_4 15,1" index="119" slack="-3018"/>
+  <constraint name="constraint4_4 15,2" index="120" slack="-3020"/>
+  <constraint name="constraint4_4 16,0" index="121" slack="-3016"/>
+  <constraint name="constraint4_4 16,1" index="122" slack="-3018"/>
+  <constraint name="constraint4_4 16,2" index="123" slack="-3020"/>
+  <constraint name="constraint4_4 17,0" index="124" slack="-3016"/>
+  <constraint name="constraint4_4 17,1" index="125" slack="-3018"/>
+  <constraint name="constraint4_4 17,2" index="126" slack="-2"/>
+  <constraint name="constraint4_4 18,0" index="127" slack="-3016"/>
+  <constraint name="constraint4_4 18,1" index="128" slack="-3018"/>
+  <constraint name="constraint4_4 18,2" index="129" slack="-1"/>
+  <constraint name="constraint4_4 19,0" index="130" slack="-3016"/>
+  <constraint name="constraint4_4 19,1" index="131" slack="-3018"/>
+  <constraint name="constraint4_4 19,2" index="132" slack="0"/>
+  <constraint name="constraint4_8 0" index="133" slack="-3.5527136788005009e-15"/>
+  <constraint name="constraint4_8 1" index="134" slack="-3.5527136788005009e-15"/>
+  <constraint name="constraint4_9 0" index="135" slack="0"/>
+  <constraint name="constraint4_9 1" index="136" slack="0"/>
+ </linearConstraints>
+ <variables>
+  <variable name="Theta" index="0" value="4.9406564584124654e-324"/>
+  <variable name="X02" index="1" value="0"/>
+  <variable name="X01" index="2" value="0"/>
+  <variable name="X00" index="3" value="1"/>
+  <variable name="X12" index="4" value="0"/>
+  <variable name="X11" index="5" value="0"/>
+  <variable name="X10" index="6" value="1"/>
+  <variable name="X22" index="7" value="0"/>
+  <variable name="X21" index="8" value="1"/>
+  <variable name="X20" index="9" value="0"/>
+  <variable name="X42" index="10" value="1"/>
+  <variable name="X41" index="11" value="0"/>
+  <variable name="X40" index="12" value="0"/>
+  <variable name="X62" index="13" value="1"/>
+  <variable name="X61" index="14" value="0"/>
+  <variable name="X60" index="15" value="0"/>
+  <variable name="X72" index="16" value="1"/>
+  <variable name="X71" index="17" value="0"/>
+  <variable name="X70" index="18" value="0"/>
+  <variable name="X82" index="19" value="1"/>
+  <variable name="X81" index="20" value="0"/>
+  <variable name="X80" index="21" value="0"/>
+  <variable name="X92" index="22" value="1"/>
+  <variable name="X91" index="23" value="0"/>
+  <variable name="X90" index="24" value="0"/>
+  <variable name="X112" index="25" value="1"/>
+  <variable name="X111" index="26" value="0"/>
+  <variable name="X110" index="27" value="0"/>
+  <variable name="X132" index="28" value="1"/>
+  <variable name="X131" index="29" value="0"/>
+  <variable name="X130" index="30" value="0"/>
+  <variable name="X172" index="31" value="1"/>
+  <variable name="X171" index="32" value="0"/>
+  <variable name="X170" index="33" value="0"/>
+  <variable name="X182" index="34" value="1"/>
+  <variable name="X181" index="35" value="0"/>
+  <variable name="X180" index="36" value="0"/>
+  <variable name="X192" index="37" value="1"/>
+  <variable name="X191" index="38" value="0"/>
+  <variable name="X190" index="39" value="0"/>
+  <variable name="alpha0" index="40" value="1"/>
+  <variable name="alpha1" index="41" value="2.9999999999999964"/>
+  <variable name="alpha2" index="42" value="4.9999999999999929"/>
+  <variable name="X30" index="43" value="0"/>
+  <variable name="X31" index="44" value="0"/>
+  <variable name="X32" index="45" value="0"/>
+  <variable name="X50" index="46" value="0"/>
+  <variable name="X51" index="47" value="0"/>
+  <variable name="X52" index="48" value="0"/>
+  <variable name="X100" index="49" value="0"/>
+  <variable name="X101" index="50" value="0"/>
+  <variable name="X102" index="51" value="0"/>
+  <variable name="X120" index="52" value="0"/>
+  <variable name="X121" index="53" value="0"/>
+  <variable name="X122" index="54" value="0"/>
+  <variable name="X140" index="55" value="0"/>
+  <variable name="X141" index="56" value="0"/>
+  <variable name="X142" index="57" value="0"/>
+  <variable name="X150" index="58" value="0"/>
+  <variable name="X151" index="59" value="0"/>
+  <variable name="X152" index="60" value="0"/>
+  <variable name="X160" index="61" value="0"/>
+  <variable name="X161" index="62" value="0"/>
+  <variable name="X162" index="63" value="0"/>
+  <variable name="beta0" index="64" value="16"/>
+  <variable name="beta1" index="65" value="18"/>
+  <variable name="beta2" index="66" value="20"/>
+ </variables>
+</CPLEXSolution>

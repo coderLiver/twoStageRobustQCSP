@@ -1,6 +1,9 @@
 package ccg_unidirectional;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -643,9 +646,9 @@ public class Model {
 	}
 
 	// iteration为true时表示进行的是迭代运算，为false时表示进行的是deterministic时的attack
+	public void lowerModelSD(Input input, boolean iteration, boolean variableOutput, boolean iterationDetail)
 	// variableOutput表示是否在Console输出相关的变量取值
 	// iterationDetail表示是否保存迭代过程中的模型求解信息
-	public void lowerModelSD(Input input, boolean iteration, boolean variableOutput, boolean iterationDetail)
 			throws IOException {
 		try {
 			lowerPro = new IloCplex();
@@ -1104,7 +1107,7 @@ public class Model {
 							expr = lowerPro.sum(expr, lowerPro.prod(Yhk[j][i], -1));
 						}
 						rhs += (betaValue[i] - alphaValue[i]) * input.traverseTime;
-						expr = lowerPro.s(um(expr, lowerPro.prod(CmaxLower[0], 1));
+						expr = lowerPro.sum(expr, lowerPro.prod(CmaxLower[0], 1));
 						expr = lowerPro.sum(expr, lowerPro.prod(Epsilonk[i], -M));
 						lowerPro.remove(lower2_16[i]);
 						lower2_16[i] = lowerPro.addLe(expr, rhs, "Constraint2_16 " + i);
@@ -1959,9 +1962,51 @@ public class Model {
 			e.printStackTrace();
 		}
 	}
+	
+	/*
+	 * 根据求解出来保存在txt中的结果，读取Assignment方案，即变量X、Alpha和Beta的取值，并赋值给对应的变量，以供下层模型求解
+	 * */
+	public void readAssignmentFromTxt(Input input, String txtPath) {
+		XhkValue = new double[input.numBay][input.numQC];
+		alphaValue = new double[input.numQC];
+		betaValue = new double[input.numQC];
+		
+		File file = new File(txtPath);
+		FileReader fileReader;
+		try {
+			fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String line = null;
+			while ((line = bufferedReader.readLine()) != null) {
+				if (line.substring(0, 1).equals("X")) {
+					// 将assignment文件中的变量取值读取出来，并重新写入
+					String[] indexsStrings = line.split(":")[0].substring(1, line.split(":")[0].length()).split(",");
+					XhkValue[Integer.parseInt(indexsStrings[0])][Integer.parseInt(indexsStrings[1])] = Double.parseDouble(line.split(":")[1]);
+					System.out.println(String.format("X%s,%s:%s", indexsStrings[0], indexsStrings[1], line.split(":")[1]));
+				}else if (line.substring(0, 1).equals("a")) {
+					int tempIndex = Integer.parseInt(line.substring(6, line.length()).split(":")[0]);
+					alphaValue[tempIndex] = Integer.parseInt(line.substring(6, line.length()).split(":")[1]);
+					System.out.println(String.format("alpha_%s:%s", tempIndex, line.split(":")[1]));
+				}else if (line.substring(0, 1).equals("b")) {
+					int tempIndex = Integer.parseInt(line.substring(5, line.length()).split(":")[0]);
+					betaValue[tempIndex] = Integer.parseInt(line.substring(5, line.length()).split(":")[1]);
+					System.out.println(String.format("beta_%s:%s", tempIndex, line.split(":")[1]));
+				}else {
+					System.out.println("Find a line not matched with all variables.");
+				}
+			}
+			bufferedReader.close();
+		} catch (NumberFormatException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}		
+	}
 
-	// 必须在deterministicModel() 运行后再运行
-	public void deterministicAttackModel(Input input, boolean resultSave) {
+	/*
+	 * 必须在deterministicModel() 运行后再运行
+	 * 通过先求解确定性问题，得到X取值，即指派关系，在运行下层问题进行Attack
+	 */
+	public void specificAssignmentAttackModel(Input input, boolean resultSave) {
 		try {
 			lowerModelSD(input, false, false, false);
 

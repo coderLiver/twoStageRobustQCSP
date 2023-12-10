@@ -1,0 +1,137 @@
+Iteration 1upperBound:102.0
+Iteration 1lowerBound:4.9E-324
+
+Iteration 2upperBound:686.0
+Iteration 2lowerBound:83.0
+Obj value:686.0
+
+Iteration 3upperBound:638.0
+Iteration 3lowerBound:146.0
+Obj value:638.0
+
+Iteration 4upperBound:308.890625
+Iteration 4lowerBound:293.75
+Obj value:308.890625
+
+Iteration 5upperBound:305.25
+Iteration 5lowerBound:295.0
+Obj value:305.25
+
+Iteration 6upperBound:304.21875
+Iteration 6lowerBound:295.25
+Obj value:304.21875
+
+Iteration 7upperBound:322.28125
+Iteration 7lowerBound:295.25
+Obj value:322.28125
+
+Iteration 8upperBound:305.4375
+Iteration 8lowerBound:296.25
+Obj value:305.4375
+
+Iteration 9upperBound:302.90625
+Iteration 9lowerBound:297.75
+Obj value:302.90625
+
+Iteration 10upperBound:323.28125
+Iteration 10lowerBound:297.75
+Obj value:323.28125
+
+Iteration 11upperBound:306.015625
+Iteration 11lowerBound:298.5
+Obj value:306.015625
+
+Iteration 12upperBound:357.0
+Iteration 12lowerBound:298.578125
+Obj value:357.0
+
+Iteration 13upperBound:306.9375
+Iteration 13lowerBound:299.0
+Obj value:306.9375
+
+Iteration 14upperBound:306.53125
+Iteration 14lowerBound:299.0
+Obj value:306.53125
+
+Iteration 15upperBound:306.6875
+Iteration 15lowerBound:299.0
+Obj value:306.6875
+
+Iteration 16upperBound:307.09375
+Iteration 16lowerBound:299.078125
+Obj value:307.09375
+
+Iteration 17upperBound:305.171875
+Iteration 17lowerBound:299.828125
+Obj value:305.171875
+
+Iteration 18upperBound:309.875
+Iteration 18lowerBound:300.0625
+Obj value:309.875
+
+Iteration 19upperBound:304.9375
+Iteration 19lowerBound:300.671875
+Obj value:304.9375
+
+Iteration 20upperBound:304.28125
+Iteration 20lowerBound:300.90625
+Obj value:304.28125
+
+Iteration 21upperBound:304.5625
+Iteration 21lowerBound:301.234375
+Obj value:304.5625
+
+Iteration 22upperBound:333.09375
+Iteration 22lowerBound:301.25
+Obj value:333.09375
+
+Iteration 23upperBound:308.21875
+Iteration 23lowerBound:301.3125
+Obj value:308.21875
+
+Iteration 24upperBound:306.796875
+Iteration 24lowerBound:301.3125
+Obj value:306.796875
+
+Iteration 25upperBound:303.359375
+Iteration 25lowerBound:301.640625
+Obj value:303.359375
+
+Iteration 26upperBound:308.875
+Iteration 26lowerBound:301.765625
+Obj value:308.875
+
+Iteration 27upperBound:323.03125
+Iteration 27lowerBound:301.78125
+Obj value:323.03125
+
+Iteration 28upperBound:304.453125
+Iteration 28lowerBound:301.875
+Obj value:304.453125
+
+Iteration 29upperBound:304.15625
+Iteration 29lowerBound:302.09375
+Obj value:304.15625
+
+Iteration 30upperBound:303.5625
+Iteration 30lowerBound:302.171875
+Obj value:303.5625
+
+Iteration 31upperBound:303.875
+Iteration 31lowerBound:302.4375
+Obj value:303.875
+
+Iteration 32upperBound:304.59375
+Iteration 32lowerBound:302.53125
+Obj value:304.59375
+
+Iteration 33upperBound:312.015625
+Iteration 33lowerBound:302.625
+Obj value:312.015625
+
+Iteration 34upperBound:302.90625
+Iteration 34lowerBound:302.90625
+Obj value:302.90625
+
+Total computing time:6708
+Iteration:34

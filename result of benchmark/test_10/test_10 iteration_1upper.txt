@@ -1,0 +1,96 @@
+<?xml version = "1.0" encoding="UTF-8" standalone="yes"?>
+<CPLEXSolution version="1.2">
+ <header
+   problemName="ilog.cplex"
+   solutionName="incumbent"
+   solutionIndex="-1"
+   objectiveValue="4.9406564584124654e-324"
+   solutionTypeValue="3"
+   solutionTypeString="primal"
+   solutionStatusValue="101"
+   solutionStatusString="integer optimal solution"
+   solutionMethodString="mip"
+   primalFeasible="1"
+   dualFeasible="1"
+   MIPNodes="0"
+   MIPIterations="0"
+   writeLevel="1"/>
+ <quality
+   epInt="1.0000000000000001e-05"
+   epRHS="9.9999999999999995e-07"
+   maxIntInfeas="0"
+   maxPrimalInfeas="1.7763568394002505e-15"
+   maxX="9"
+   maxSlack="3009"/>
+ <linearConstraints>
+  <constraint name="constraint4_2 0" index="0" slack="0"/>
+  <constraint name="constraint4_2 2" index="1" slack="0"/>
+  <constraint name="constraint4_2 3" index="2" slack="0"/>
+  <constraint name="constraint4_2 4" index="3" slack="0"/>
+  <constraint name="constraint4_2 5" index="4" slack="0"/>
+  <constraint name="constraint4_2 8" index="5" slack="0"/>
+  <constraint name="constraint4_3 0,0" index="6" slack="0"/>
+  <constraint name="constraint4_3 0,1" index="7" slack="2997"/>
+  <constraint name="constraint4_3 1,0" index="8" slack="2999"/>
+  <constraint name="constraint4_3 1,1" index="9" slack="2997"/>
+  <constraint name="constraint4_3 2,0" index="10" slack="2999"/>
+  <constraint name="constraint4_3 2,1" index="11" slack="0"/>
+  <constraint name="constraint4_3 3,0" index="12" slack="2999"/>
+  <constraint name="constraint4_3 3,1" index="13" slack="1"/>
+  <constraint name="constraint4_3 4,0" index="14" slack="2999"/>
+  <constraint name="constraint4_3 4,1" index="15" slack="2"/>
+  <constraint name="constraint4_3 5,0" index="16" slack="2999"/>
+  <constraint name="constraint4_3 5,1" index="17" slack="3"/>
+  <constraint name="constraint4_3 6,0" index="18" slack="2999"/>
+  <constraint name="constraint4_3 6,1" index="19" slack="2997"/>
+  <constraint name="constraint4_3 7,0" index="20" slack="2999"/>
+  <constraint name="constraint4_3 7,1" index="21" slack="2997"/>
+  <constraint name="constraint4_3 8,0" index="22" slack="2999"/>
+  <constraint name="constraint4_3 8,1" index="23" slack="6"/>
+  <constraint name="constraint4_4 0,0" index="24" slack="-6"/>
+  <constraint name="constraint4_4 0,1" index="25" slack="-3009"/>
+  <constraint name="constraint4_4 1,0" index="26" slack="-3007"/>
+  <constraint name="constraint4_4 1,1" index="27" slack="-3009"/>
+  <constraint name="constraint4_4 2,0" index="28" slack="-3007"/>
+  <constraint name="constraint4_4 2,1" index="29" slack="-6"/>
+  <constraint name="constraint4_4 3,0" index="30" slack="-3007"/>
+  <constraint name="constraint4_4 3,1" index="31" slack="-5"/>
+  <constraint name="constraint4_4 4,0" index="32" slack="-3007"/>
+  <constraint name="constraint4_4 4,1" index="33" slack="-4"/>
+  <constraint name="constraint4_4 5,0" index="34" slack="-3007"/>
+  <constraint name="constraint4_4 5,1" index="35" slack="-3"/>
+  <constraint name="constraint4_4 6,0" index="36" slack="-3007"/>
+  <constraint name="constraint4_4 6,1" index="37" slack="-3009"/>
+  <constraint name="constraint4_4 7,0" index="38" slack="-3007"/>
+  <constraint name="constraint4_4 7,1" index="39" slack="-3009"/>
+  <constraint name="constraint4_4 8,0" index="40" slack="-3007"/>
+  <constraint name="constraint4_4 8,1" index="41" slack="0"/>
+  <constraint name="constraint4_8 0" index="42" slack="-1.7763568394002505e-15"/>
+  <constraint name="constraint4_9 0" index="43" slack="0"/>
+ </linearConstraints>
+ <variables>
+  <variable name="Theta" index="0" value="4.9406564584124654e-324"/>
+  <variable name="X01" index="1" value="0"/>
+  <variable name="X00" index="2" value="1"/>
+  <variable name="X21" index="3" value="1"/>
+  <variable name="X20" index="4" value="0"/>
+  <variable name="X31" index="5" value="1"/>
+  <variable name="X30" index="6" value="0"/>
+  <variable name="X41" index="7" value="1"/>
+  <variable name="X40" index="8" value="0"/>
+  <variable name="X51" index="9" value="1"/>
+  <variable name="X50" index="10" value="0"/>
+  <variable name="X81" index="11" value="1"/>
+  <variable name="X80" index="12" value="0"/>
+  <variable name="alpha0" index="13" value="1"/>
+  <variable name="alpha1" index="14" value="2.9999999999999982"/>
+  <variable name="X10" index="15" value="0"/>
+  <variable name="X11" index="16" value="0"/>
+  <variable name="X60" index="17" value="0"/>
+  <variable name="X61" index="18" value="0"/>
+  <variable name="X70" index="19" value="0"/>
+  <variable name="X71" index="20" value="0"/>
+  <variable name="beta0" index="21" value="7"/>
+  <variable name="beta1" index="22" value="9"/>
+ </variables>
+</CPLEXSolution>

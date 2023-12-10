@@ -13,7 +13,7 @@ public class Implement {
 		}
 
 		int startInstanceID = 1;
-		int endInstanceID = 10;
+		int endInstanceID = 90;
 		String savePath = "./KimPark2004instance/reformate"; // 按bay改造后的benchmark的保存地址
 		double[] uncertain = new double[]{0.1, 0.2, 0.3, 0.4, 0.5, 1.0};
 		double[] budgetRatio = new double[] {0.1, 0.2, 0.3, 0.4};
@@ -157,9 +157,10 @@ public class Implement {
 			}
 			break;
 		case 'g':
-			
+			//  Solve deterministic model and attack it.
 			StaticMethod.clearFolder("./determinstic");
-			for (int i = startInstanceID; i <= endInstanceID; i++) {
+//			for (int i = startInstanceID; i <= endInstanceID; i++) {
+			for (int i = 1; i <= 1; i++) {
 				String path = "KimPark2004instance/test_" + i + ".txt";
 				Input data = new Input();
 				data.dataInput(path, i);
@@ -167,8 +168,8 @@ public class Implement {
 				
 				try {
 					// 确定性模型迭代 + Attack
-					model.deterministicModel(data, false, false);
-					model.deterministicAttackModel(data, false);
+					model.deterministicModel(data, true, false);
+					model.specificAssignmentAttackModel(data, false);
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -240,13 +241,14 @@ public class Implement {
 			break;
 		case 'k':
 //			for (int i = startInstanceID; i <= endInstanceID; i++) {
-			for (int i = 1; i <= 1; i++) {
+			// Assume that all the bays are stochastic
+			for (int i = 10; i <= 10; i++) {
 				String path = "KimPark2004instance/test_" + i + ".txt";
 				Input data = new Input();
 				data.dataInput(path, i);
-				data.resetWriterOverall();
-				data.resetWriterAssignment();
-				data.resetWriterSenario();
+				data.stochasticProcessingGeneration();
+				data.resetWriterOverallStochastic();
+				data.resetWriterStochasticAssignment();
 				StochasticProgrammingModel model = new StochasticProgrammingModel();
 				// 基于Stochastic Programming进行建模
 				try {
@@ -261,6 +263,74 @@ public class Implement {
 				System.out.println("程序运行时间：" + (model.endTime - model.startTime) + "ms"); // 输出程序运行时间
 			}
 			break;
+		case 'l':
+		{
+			// Select k bays to be stochastic and saved the indexes.
+			Input input = new Input();
+			Integer numSelectedBay = 5;
+			String readTxtPath = "./KimPark2004instance/reformate/";
+			String writeTxtPath = "./KimPark2004instance/selectedStochastic/";
+			for (int i = startInstanceID; i <= endInstanceID; i++) {
+				String readFileName = "reformateTest_" + i + ".txt";
+				String writeFileName = "selected" + numSelectedBay + "Bays" + i + ".txt";
+				String readFinalPath = readTxtPath + readFileName;
+				String writeFinalPath = writeTxtPath + writeFileName;
+				input.generateStochasticBaySave(numSelectedBay, readFinalPath, writeFinalPath);
+			}
+			
+			System.out.println("The progress of selecting stochastic bays is finished.");
+			break;
+		}
+		case 'm':
+		{
+			// Solving the stochastic programming with the k bays at most to be stochastic
+			Integer numSelectedBay = 5;
+			String readTxtPath = "./KimPark2004instance/selectedStochastic/";
+//			for (int i = startInstanceID; i <= endInstanceID; i++) {
+			for (int i = 65; i <= 65; i++) {
+				String path = "KimPark2004instance/test_" + i + ".txt";
+				Input data = new Input();
+				data.dataInput(path, i);
+				data.resetWriterStochasticAssignment();
+				data.resetWriterOverallStochastic();
+				String readFileName = "selected" + numSelectedBay + "Bays" + i + ".txt";
+				String readFinalPath = readTxtPath + readFileName;
+				data.getScenarioStochasticModel(readFinalPath);
+				StochasticProgrammingModel model = new StochasticProgrammingModel();
+				// 基于Stochastic Programming进行建模
+				try {
+					model.upperModel(data, false, false);
+					model.lowerModelLShape(data, false, false);
+					model.lowerModelIterate(data, false, false);
+				} catch (IOException | IloException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				System.out.println("程序运行时间：" + (model.endTime - model.startTime) + "ms"); // 输出程序运行时间
+			}
+			break;
+		}
+		case 'n':
+		{
+			//  Solving with a given assignment and attack it
+			StaticMethod.clearFolder("./determinstic");
+//			for (int i = startInstanceID; i <= endInstanceID; i++) {
+			for (int i = 1; i <= 90; i++) {
+				String path = "KimPark2004instance/test_" + i + ".txt";
+				Input data = new Input();
+				data.dataInput(path, i);
+				Model model = new Model();
+				String assignmentTxtPath = String.format("result of benchmark/assignment_stochastic/best assignment of test_%d.txt", i);
+				
+				// 特定指派方案 + Attack	
+				model.readAssignmentFromTxt(data, assignmentTxtPath);
+				model.specificAssignmentAttackModel(data, false);
+				
+				System.out.println("程序运行时间：" + (model.endTime - model.startTime) + "ms"); // 输出程序运行时间
+			}
+			break;
+		}
 		default:
 			usage();
 			return;
@@ -278,5 +348,10 @@ public class Implement {
 		System.out.println("options:       -g   Solve deterministic model and attack it");
 		System.out.println("options:       -h   reformate the benchmark from container group to complete bay");
 		System.out.println("options:       -i   Given Assignment and uncertainty and solve");
+		System.out.println("options:       -j   Sensitivity analysis with Benders Decomposition");
+		System.out.println("options:       -k   Solve all potential scenarios using L-shape algorithm");
+		System.out.println("options:       -l   Select k bays to be stochastic randomly and save the indexes in txt");
+		System.out.println("options:       -m   Solving stochastic programming with k stochastic bays");
+		System.out.println("options:       -n   Solving with a given assignment and attack it");
 	}
 }

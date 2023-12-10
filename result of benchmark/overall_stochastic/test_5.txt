@@ -1,0 +1,25 @@
+Iteration 1upperBound:158.75
+Iteration 1lowerBound:4.9E-324
+
+Iteration 2upperBound:254.75
+Iteration 2lowerBound:4.9E-324
+Obj value:254.75
+
+Iteration 3upperBound:221.0
+Iteration 3lowerBound:110.25
+Obj value:221.0
+
+Iteration 4upperBound:185.578125
+Iteration 4lowerBound:166.0
+Obj value:185.578125
+
+Iteration 5upperBound:175.625
+Iteration 5lowerBound:174.75
+Obj value:175.625
+
+Iteration 6upperBound:175.625
+Iteration 6lowerBound:175.625
+Obj value:175.625
+
+Total computing time:256
+Iteration:6

@@ -6,20 +6,29 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 public class Input {
 	int numBay;
 	int numQC;
 	double traverseTime;
-	double[] processTime; // Ã¿¸öbayµÄÈÎÎñËùĞèÊ±¼äºÍ
-	double uncertain = 1.0; //´¦ÀíÊ±¼äµÄ×î´ó²¨¶¯±ÈÂÊ
+	double[] processTime; // è´ä½æ‰€éœ€åŠ å·¥æ—¶é—´
+	double uncertain = 1.0; //ä»»åŠ¡çš„æœ€å¤§åç¦»ç¨‹åº¦
 	int budget;
-	double budgetRatio = 0.1; //±íÊ¾ÓĞ°Ù·ÖÖ®10µÄ±´Î»¿ÉÄÜÈ¡×îÔã¸âµÄÇé¿ö
+	double budgetRatio = 0.1; // åç§»ä»»åŠ¡çš„æœ€å¤§æ¯”ä¾‹
 	int safetyMargin;
-	FileWriter writerOverall; // ±£´æËãÀı½á¹ûÎÄ¼şµÄÏà¹ØĞ´ÈëÀà£¬±£´æµÄÊÇÃ¿²½µü´úµÄÉÏÏÂ½ç½á¹û¡¢ÔËĞĞÊ±¼ä
-	FileWriter writerAssignment; // ±£´æ×îºóÇóµÃµÄRobustĞÔ×îºÃµÄ·½°¸½á¹û£¬ÕâÀï²»ÊÇ±£´æ×îºóÒ»´Îµü´úµÄÊä³ö½á¹û£¬¶øÊÇÓ¦¸ÃÑ¡Ôñµü´ú¹ı³ÌÖĞÉÏ½ç×îĞ¡µÄÒ»´Î
-	FileWriter writerSenario; // ¼ÇÂ¼writerSchedule¶ÔÓ¦µÄµü´ú´ÎÊıÊ±ÏÂ²ãÎÊÌâµÄ¾ßÌå±äÁ¿YÖµºÍ·¢ÉúattackµÄ±´Î»
+	FileWriter writerOverall; // è®°å½•è¿­ä»£è¿‡ç¨‹ä¸­çš„ä¸Šä¸‹ç•Œï¼Œå³ä¸»é—®é¢˜å­é—®é¢˜ç›¸å…³çš„ç›®æ ‡å‡½æ•°
+	FileWriter writerAssignment; // è®°å½•é²æ£’æ¨¡å‹ä¸­è´ä½å²¸æ¡¥çš„æŒ‡æ´¾å…³ç³»
+	FileWriter writerStochasticAssignment; // è®°å½•éšæœºæ¨¡å‹ä¸­è´ä½å²¸æ¡¥çš„æŒ‡æ´¾å…³ç³»
+	FileWriter writerSenario; // è®°å½•å‘ç”ŸåŠ å·¥æ—¶é—´åç§»çš„è´ä½
+	FileWriter writerOverallStochastic; // è®°å½•éšæœºä¼˜åŒ–æ¨¡å‹è¿­ä»£è¿‡ç¨‹ä¸­çš„ä¸Šä¸‹ç•Œ
 	int testID;
+	// é—…å¿”æº€æµ¼æ¨ºå¯²é–®ã„¥å
+	int scenarioEachBay = 2;
+	int num_ksi; // the amount of scenarios
+	double[][] stochasticProcessTime; // i-scenario_index, j-processing time of bay 
+	double multiple = 1.5; // multiple of stochastic processing time 
 	
 	public void dataInput(String pathname, Integer instanceID) {
 		int numGroupTask;
@@ -28,18 +37,28 @@ public class Input {
 		testID = instanceID;
 
 		File file = new File("./result of benchmark/overall" + uncertain + "_" + budgetRatio);
-		if(!file.exists()){//Èç¹ûÎÄ¼ş¼Ğ²»´æÔÚ
-			file.mkdirs();//´´½¨ÎÄ¼ş¼Ğ
+		if(!file.exists()){
+			file.mkdirs();
+		}
+		
+		file = new File("./result of benchmark/overall_stochastic");
+		if(!file.exists()){
+			file.mkdirs();
 		}
 		
 		file = new File("./result of benchmark/assignment" + uncertain + "_" + budgetRatio);
-		if(!file.exists()){//Èç¹ûÎÄ¼ş¼Ğ²»´æÔÚ
-			file.mkdir();//´´½¨ÎÄ¼ş¼Ğ
+		if(!file.exists()){
+			file.mkdir();
+		}
+		
+		file = new File("./result of benchmark/assignment_stochastic");
+		if(!file.exists()){
+			file.mkdir();
 		}
 		
 		file = new File("./result of benchmark/senario" + uncertain + "_" + budgetRatio);
-		if(!file.exists()){//Èç¹ûÎÄ¼ş¼Ğ²»´æÔÚ
-			file.mkdir();//´´½¨ÎÄ¼ş¼Ğ
+		if(!file.exists()){
+			file.mkdir();
 		}
 		
 		try {
@@ -69,7 +88,7 @@ public class Input {
 			}
 			
 			if ((line = bufferedReader.readLine()) != null) {
-				line = line.substring(1, line.length() - 1); //É¾³ıÊ×Î²×Ö·û
+				line = line.substring(1, line.length() - 1); //å»é™¤é¦–å°¾å­—ç¬¦
 				String[] strings = line.split(",");
 				processTimeGroup = new double[strings.length];
 				for (int i = 0; i < strings.length; i++) {
@@ -78,7 +97,7 @@ public class Input {
 			}
 			
 			if ((line = bufferedReader.readLine()) != null) {
-				line = line.substring(1, line.length() - 1); //É¾³ıÊ×Î²×Ö·û
+				line = line.substring(1, line.length() - 1); //å»é™¤é¦–å°¾å­—ç¬¦
 				String[] strings = line.split(",");
 				taskLoaction = new int[strings.length];
 				for (int i = 0; i < strings.length; i++) {
@@ -90,13 +109,12 @@ public class Input {
 			for (int i = 0; i < processTimeGroup.length; i++) {
 				totalProcessTime += processTimeGroup[i];
 			}
-			System.out.println("ËùÓĞÈÎÎñµÄ×Ü´¦ÀíÊ±¼äÎª£º" + totalProcessTime);
-			// ºóÈıĞĞÊı¾İÃ»ÓÃ£¬ÔİÊ±Å×Æú
+			System.out.println("Total processing time of all the bays:" + totalProcessTime);
 			bufferedReader.close();
 
-			// ½øĞĞÕû±´Î»×ª»»
-			ArrayList<Integer> taskBay = new ArrayList<Integer>(); // ÒÀ´Î²»ÖØ¸´µØ¼ÇÂ¼Ã¿¸ötask¶ÔÓ¦µÄbayË÷Òı
-			ArrayList<Double> processTimeBay = new ArrayList<Double>(); // ÓëtaskBayÒ»Ò»¶ÔÓ¦µÄ¼ÇÂ¼Ã¿¸öbayÉÏµÄÈÎÎñÊ±¼äºÍ
+			// å°†groupä¸ºç²’åº¦çš„taskè½¬åŒ–ä¸ºbayä¸ºç²’åº¦çš„task
+			ArrayList<Integer> taskBay = new ArrayList<Integer>(); // è®°å½•taskå¯¹åº”çš„è´ä½ä½ç½®
+			ArrayList<Double> processTimeBay = new ArrayList<Double>(); // è®°å½•æœ‰taskè´ä½çš„ä»»åŠ¡æ—¶é—´å’Œ
 			
 			for (int i = 0; i < taskLoaction.length; i++) {
 				int j = taskBay.size();
@@ -115,7 +133,7 @@ public class Input {
 			}
 			
 //			budget = 0;
-			// ¸ù¾İÉèÖÃµÄ±ÈÀı£¬È¡ÏàÓ¦µÄÓĞÈÎÎñµÄbayÊı³ËÒÔ±ÈÀıÔÙÏòÉÏÈ¡Õû
+			// å¯ä»¥å‘ç”Ÿuncertaintyçš„è´ä½æ•°é‡å–æœ‰ä»»åŠ¡çš„è´ä½æ•°*budgetRatioï¼Œå†å‘ä¸Šå–æ•´ã€‚
 			budget = (int) Math.ceil(taskBay.size() * budgetRatio);
 
 			processTime = new double[numBay];
@@ -133,13 +151,13 @@ public class Input {
 		
 	}
 	
-	// ½«Kim and Park benchmark´Ócontainer group×ª»¯³Écomplete bayµÄĞÎÊ½ 
-	// ¸Ã·½·¨ĞèÒªÔÚdataInput()·½·¨ºóµ÷ÓÃ
-	// savePathÎª±£´æµÄÂ·¾¶£¬ÒÔÎÄ¼ş¼ĞµÄÃû×Ö½áÎ²   saveFileNameÎªÒª±£ÁôµÄÎÄ¼şÃû³Æ
+	// çå’¾im and Park benchmarkæµ å·†ontainer groupæî„€å¯²é´æˆomplete bayé¨å‹«èˆ°å¯®ï¿½ 
+	// ç’‡ãƒ¦æŸŸå¨‰æ›¢æ¸¶ç‘•ä½¸æ¹ªdataInput()é‚è§„ç¡¶éšåº¤çšŸé¢ï¿½
+	// savePathæ¶“è½°ç¹šç€›æ¨¼æ®‘ç’ºîˆšç·é”›å±¼äº’é‚å›¦æ¬¢æ¾¶åœ­æ®‘éšå¶…ç“§ç¼æ’³ç†¬   saveFileNameæ¶“é¸¿î›¦æ·‡æ¿ˆæš€é¨å‹¬æƒæµ è·ºæ‚•ç»‰ï¿½
 	public void instanceReformate(String savePath, String saveFileName) {
 		File file = new File(savePath);
-		if(!file.exists()){//Èç¹ûÎÄ¼ş¼Ğ²»´æÔÚ
-			file.mkdir();//´´½¨ÎÄ¼ş¼Ğ
+		if(!file.exists()){//æ¿¡å‚›ç‰é‚å›¦æ¬¢æ¾¶é€›ç¬‰ç€›æ¨ºæ¹ª
+			file.mkdir();//é’æ¶˜ç¼“é‚å›¦æ¬¢æ¾¶ï¿½
 		}
 		
 		try {
@@ -158,12 +176,23 @@ public class Input {
 		}
 	}
 	
-	// ÓÃÓÚÇå¿ÕÎÄ¼şÄÚÈİ
+	// é¢ã„¤ç°¬å¨“å‘¯â”–é‚å›¦æ¬¢éå‘­î†
 	public void resetWriterAssignment() {
 		String writerAssignmentPath = "./result of benchmark/assignment" + uncertain + "_" + budgetRatio + "/best assignment of test_" + testID + ".txt";
 		
 		try {
 			writerAssignment = new FileWriter(writerAssignmentPath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void resetWriterStochasticAssignment() {
+		String writerStochasticAssignmentPath = "./result of benchmark/assignment_stochastic" + "/best assignment of test_" + testID + ".txt";
+		
+		try {
+			writerStochasticAssignment = new FileWriter(writerStochasticAssignmentPath);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -186,6 +215,147 @@ public class Input {
 		
 		try {
 			writerOverall = new FileWriter(writerOverallPath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void resetWriterOverallStochastic() {
+		String writerOverallPath = "./result of benchmark/overall_stochastic" + "/test_" + testID + ".txt";
+		
+		try {
+			writerOverallStochastic = new FileWriter(writerOverallPath);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	// all the bays can be stochastic
+	public void stochasticProcessingGeneration() {
+		num_ksi = (int) Math.pow(scenarioEachBay, numBay);
+		stochasticProcessTime = new double[num_ksi][numBay];
+		String binary_i;
+		for (int i = 0; i < num_ksi; i++) {
+			// Convert i to binary. Each bit represents that the bay is stochastic or not.
+			binary_i = Integer.toString(i, 2);
+			String formatString = "%" + numBay + "s";
+			binary_i = String.format(formatString, binary_i).replace(" ", "0");
+			for (int j = 0; j < binary_i.length(); j++) {
+				if (binary_i.charAt(j) == '0') {
+					stochasticProcessTime[i][j] = processTime[j];
+				} else if (binary_i.charAt(j) == '1') {
+					stochasticProcessTime[i][j] = processTime[j] * multiple;
+				}else {
+					System.out.println("Unexpected Value: not 0 and 1!");
+				}
+			}
+		}
+	}
+	
+	/**
+	 *  ä»åŠ å·¥æ—¶é—´ä¸ä¸º0çš„è´ä½ä¸­éšæœºæŠ½å–æœ€å¤šä¸è¶…è¿‡selectedBayä¸ªï¼Œå¹¶ä¿å­˜ç»“æœåˆ°txtä¸­
+	 * @param selectedBay
+	 */
+	public void generateStochasticBaySave(Integer selectedBay, String readTxtPath, String writeTxtPath) {
+		ArrayList<Integer> processBayArrayList = new ArrayList<Integer>();
+		File file = new File(readTxtPath);
+		FileReader fileReader;
+		try {
+			fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String content = bufferedReader.readLine();
+			// æŸ¥æ‰¾åŠ å·¥æ—¶é—´ä¸ä¸º0çš„è´ä½
+			content = content.substring(1, content.length() - 1);
+			String[] tempProcessTime = content.split(",");
+			
+			for (int j = 0; j < tempProcessTime.length; j++) {
+				double temp_double = Double.parseDouble(tempProcessTime[j]);
+				if (Math.abs(temp_double - 0) > 0.001) {
+					processBayArrayList.add(j);
+				}
+			}
+			
+			bufferedReader.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// éšæœºæŠ½å–æœ€å¤škä¸ª
+		Random random = new Random();
+		ArrayList<Integer> resultArrayList = new ArrayList<Integer>();
+		int list_size = processBayArrayList.size();
+		if (list_size <= selectedBay) {
+			resultArrayList = processBayArrayList;
+		}else {
+			for (int i = 0; i < selectedBay; i++) {
+				int index = random.nextInt(list_size - i);
+				resultArrayList.add(processBayArrayList.get(index));
+				Collections.swap(processBayArrayList,index, list_size - i - 1);
+			}
+		}
+		
+		File writeFile = new File(writeTxtPath);
+		
+		if(!writeFile.exists()){//æ¿¡å‚›ç‰é‚å›¦æ¬¢æ¾¶é€›ç¬‰ç€›æ¨ºæ¹ª
+			writeFile.getParentFile().mkdir();//é’æ¶˜ç¼“é‚å›¦æ¬¢æ¾¶ï¿½
+		}
+		
+		try {
+			FileWriter writer = new FileWriter(writeFile);
+			
+			for (int i = 0; i < resultArrayList.size(); i++) {
+				writer.write(resultArrayList.get(i).toString());
+				if (i != resultArrayList.size() - 1) {
+					writer.write(',');
+				}
+			}
+			
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+	}
+	
+	// è·å–txtæ–‡ä»¶ä¸­ä¿å­˜çš„stochastic bayçš„ä½ç½®ï¼Œç”Ÿæˆå¥½stochasticProcessTimeï¼Œç”¨äºå»ºæ¨¡
+	public void getScenarioStochasticModel(String readTxtPath) {
+		File file = new File(readTxtPath);
+		FileReader fileReader;
+		try {
+			fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String content = bufferedReader.readLine();
+			String[] stochasticBaysStrings = content.split(",");
+			int[] stochasticBaysLocation = new int[stochasticBaysStrings.length];
+			bufferedReader.close();
+			num_ksi = (int) Math.pow(2, stochasticBaysLocation.length);
+			
+			for (int i = 0; i < stochasticBaysStrings.length; i++) {
+				stochasticBaysLocation[i] = Integer.parseInt(stochasticBaysStrings[i]);
+			}
+			
+			// innitial stochasticProcessTime
+			stochasticProcessTime = new double[num_ksi][processTime.length];
+			
+			for (int i = 0; i < num_ksi; i++) {
+				stochasticProcessTime[i] = processTime.clone();
+			}
+			
+			String binary_i;
+			for (int i = 0; i < num_ksi; i++) {
+				binary_i = Integer.toString(i, 2);
+				String formatString = "%" + stochasticBaysLocation.length + "s";
+				binary_i = String.format(formatString, binary_i).replace(" ", "0");
+				for (int j = 0; j < binary_i.length(); j++) {
+					if (binary_i.charAt(j) == '1') {
+						stochasticProcessTime[i][stochasticBaysLocation[j]] = processTime[stochasticBaysLocation[j]] * multiple;
+					}
+				}
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
